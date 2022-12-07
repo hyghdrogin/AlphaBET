@@ -15,7 +15,14 @@ const config = {
   USERNAME: process.env.USERNAME,
   PASSWORD: process.env.PASSWORD,
   DATABASE: process.env.DATABASE,
-  SEED_PASSWORD: process.env.SEED_PASSWORD
+  SEED_PASSWORD: process.env.SEED_PASSWORD,
+  URL: process.env.URL,
+  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+  SENDGRID_EMAIL: process.env.SENDGRID_EMAIL,
+  SMTP_EMAIL: process.env.SMTP_EMAIL,
+  CLOUD_NAME: process.env.CLOUD_NAME,
+  API_KEY: process.env.API_KEY,
+  API_SECRET: process.env.API_SECRET,
 };
 
 const absentConfig = Object.entries(config)

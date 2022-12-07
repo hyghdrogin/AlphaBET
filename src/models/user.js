@@ -1,31 +1,69 @@
-const {
-  Model
-} = require("sequelize");
+const { UUIDV4 } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
-    // eslint-disable-next-line valid-jsdoc
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-  }
-  User.init({
-    firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING,
-    email: DataTypes.STRING,
-    username: DataTypes.STRING,
-    password: DataTypes.STRING,
-    dob: DataTypes.STRING,
-    phone: DataTypes.STRING,
-    location: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: "User",
+  const User = sequelize.define("Users", {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: UUIDV4,
+      primaryKey: true,
+      unique: true,
+    },
+    firstName: {
+      type: DataTypes.STRING
+    },
+    lastName: {
+      type: DataTypes.STRING
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.STRING,
+    },
+    phone: {
+      type: DataTypes.BIGINT,
+      unique: true
+    },
+    photo: {
+      type: DataTypes.STRING,
+    },
+    location: {
+      type: DataTypes.STRING,
+    },
+    balance: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    dob: {
+      type: DataTypes.STRING,
+    },
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    role: {
+      type: DataTypes.STRING,
+      defaultValue: "user"
+    },
+    verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   });
+  User.associate = models => {
+    User.hasMany(models.Otps, {
+      as: "otp",
+      foreignKey: "email",
+      onDelete: "cascade",
+      hooks: true,
+    });
+  };
   return User;
 };
