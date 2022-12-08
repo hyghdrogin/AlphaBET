@@ -9,14 +9,19 @@ import { validateSignup, validateLogin } from "../validations/user";
 const router = Router();
 const { verifyToken } = Authentication;
 const {
-  createUser, loginUser, verifyAccount, deactivateUser, reactivateUser
+  createUser, loginUser, verifyAccount, getProfile, updateProfile, uploadPhoto, deactivateUser, reactivateUser, welcomeBack
 } = UserController;
 
-router.post("/register", validator(validateSignup), parser.single("photo"), createUser);
+router.post("/register", validator(validateSignup), createUser);
 router.post("/verify", verifyAccount);
 router.post("/login", validator(validateLogin), loginUser);
+router.post("/reactivation", welcomeBack);
+router.post("/reactivate", reactivateUser);
 
+router.get("/profile", verifyToken, getProfile);
 router.get("/deactivate", verifyToken, deactivateUser);
-router.get("/reactivate", reactivateUser);
+
+router.patch("/profile", verifyToken, updateProfile);
+router.patch("/picture", verifyToken, parser.single("photo"), uploadPhoto);
 
 export default router;

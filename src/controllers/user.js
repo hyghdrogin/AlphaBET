@@ -152,14 +152,51 @@ export default class UserController {
     try {
       const { id } = req.person;
       const {
-        username, dob, location, phone
+        location, phone
       } = req.body;
-      const user = await models.User.findOne({ id });
+      const user = await models.Users.findOne({ where: { id } });
       await user.update({
-        username, dob, phone, location
+        location,
+        phone
       });
-      await user.save();
+      await user.save({ fields: ["location", "phone"] });
       return successResponse(res, 200, "Profile updated Successfully.", user);
+    } catch (error) {
+      handleError(error, req);
+      return errorResponse(res, 500, "Server error");
+    }
+  }
+
+  /**
+   * @param {object} req - The reset request object
+   * @param {object} res - The reset errorResponse object
+   * @returns {object} Success message
+   */
+  static async uploadPhoto(req, res) {
+    try {
+      const { id } = req.person;
+      const user = await models.Users.findOne({ where: { id } });
+      await user.update({
+        photo: req.file.path
+      });
+      await user.save({ fields: ["photo"] });
+      return successResponse(res, 200, "Profile Picture updated Successfully.", user);
+    } catch (error) {
+      handleError(error, req);
+      return errorResponse(res, 500, "Server error");
+    }
+  }
+
+  /**
+   * @param {object} req - The reset request object
+   * @param {object} res - The reset errorResponse object
+   * @returns {object} Success message
+   */
+  static async getProfile(req, res) {
+    try {
+      const { id } = req.person;
+      const user = await models.Users.findOne({ where: { id } });
+      return successResponse(res, 200, "Profile Picture updated Successfully.", user);
     } catch (error) {
       handleError(error, req);
       return errorResponse(res, 500, "Server error");
@@ -174,15 +211,13 @@ export default class UserController {
   static async deactivateUser(req, res) {
     try {
       const { id } = req.person;
-      const user = await models.User.findOrCreate({
-        id,
-        default: {
-          verified: false, active: false
-        }
-      });
-      const otp = await models.Otp.findOne({ where: { email: user.email } });
-      console.log(otp.token);
-      await otp.destroy();
+      const user = await models.Users.findOne({ where: { id } });
+      user.active = false;
+      await user.save();
+      const otp = await models.Otps.findOne({ where: { email: user.email } });
+      if (otp) {
+        await otp.destroy();
+      }
       return successResponse(
         res,
         200,
@@ -203,26 +238,59 @@ export default class UserController {
   static async reactivateUser(req, res) {
     try {
       const { email } = req.body;
-      const user = await models.User.findOne({
-        email,
-        default: {
-          verified: true, active: true
-        }
-      });
-      const otp = `${Math.floor(100000 + Math.random() * 900000)}`;
-      await models.Otp.create({ email, token: otp });
-      const subject = "We are pleased to have you back at AlphaBET";
-      const message = `<h1>AlphaBET</h1>
-      
-      <p>To reactivate user, please confirm your email</p>
-      <p><a href="${url}/api/users/verify/${otp}"><button type="button">Confirm my e-mail</button></a></p>`;
-      await sendEmail(email, subject, message);
+      const user = await models.Users.findOne({ where: { email } });
+      if (user) {
+        const otp = `${Math.floor(100000 + Math.random() * 900000)}`;
+        await models.Otps.create({ email, token: otp });
+        const subject = "We are pleased to have you back at AlphaBET";
+        const message = `<h1>AlphaBET</h1>
+        
+        <p>To reactivate user, please confirm your email with this OTP</p>
+        <p>${otp}</p>`;
+        sgMail.setApiKey(config.SENDGRID_API_KEY);
+        const msg = {
+          to: email,
+          from: `AlphaBET <${config.SENDGRID_EMAIL}>`,
+          subject,
+          html: message,
+        };
+        sgMail
+          .send(msg)
+          .then(() => {
+            console.log("Email sent");
+          });
+      } else {
+        return errorResponse(res, 400, "User not found", { user });
+      }
       return successResponse(
         res,
         200,
-        "User Reactivated Successfully.",
-        { user }
+        "Reactivation OTP has been sent to your email Successfully."
       );
+    } catch (error) {
+      handleError(error, req);
+      return errorResponse(res, 500, "Server error");
+    }
+  }
+
+  /**
+   * @param {object} req - The reset request object
+   * @param {object} res - The reset errorResponse object
+   * @returns {object} Success message
+   */
+  static async welcomeBack(req, res) {
+    try {
+      const { otp } = req.body;
+      const otpDey = await models.Otps.findOne({ where: { token: otp } });
+      console.log(otpDey.email);
+      const user = await models.Users.findOne({ where: { email: otpDey.email } });
+      if (user) {
+        user.active = true;
+        await user.save();
+      } else {
+        return errorResponse(res, 400, "User not found");
+      }
+      return successResponse(res, 200, "Profile Picture updated Successfully.", user);
     } catch (error) {
       handleError(error, req);
       return errorResponse(res, 500, "Server error");

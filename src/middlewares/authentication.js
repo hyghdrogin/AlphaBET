@@ -20,7 +20,7 @@ export default class Authentication {
             const token = credentials;
             const decoded = await jwt.verify(token, config.JWT_KEY);
 
-            const user = await models.Users.findAll({ where: { id: decoded.id } });
+            const user = await models.Users.findOne({ where: { id: decoded.id } });
             if (!user) return errorResponse(res, 404, "User account not found");
             req.person = user;
             return next();
