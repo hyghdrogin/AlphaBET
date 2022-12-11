@@ -44,6 +44,9 @@ module.exports = (sequelize, DataTypes) => {
     dob: {
       type: DataTypes.STRING,
     },
+    googleId: {
+      type: DataTypes.STRING,
+    },
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

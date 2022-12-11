@@ -152,14 +152,18 @@ export default class UserController {
     try {
       const { id } = req.person;
       const {
-        location, phone
+        location, phone, username, dob
       } = req.body;
       const user = await models.Users.findOne({ where: { id } });
       await user.update({
         location,
-        phone
+        phone,
+        username,
+        dob
       });
-      await user.save({ fields: ["location", "phone"] });
+      await user.save({
+        fields: ["location", "phone", "username", "dob", "password"]
+      });
       return successResponse(res, 200, "Profile updated Successfully.", user);
     } catch (error) {
       handleError(error, req);

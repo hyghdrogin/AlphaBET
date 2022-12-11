@@ -12,17 +12,18 @@ const config = {
   PROD_DATABASE_URL: process.env.PROD_DATABASE_URL,
   JWT_KEY: process.env.JWT_KEY,
   APP_NAME: process.env.APP_NAME,
-  USERNAME: process.env.USERNAME,
-  PASSWORD: process.env.PASSWORD,
-  DATABASE: process.env.DATABASE,
   SEED_PASSWORD: process.env.SEED_PASSWORD,
-  URL: process.env.URL,
   SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
   SENDGRID_EMAIL: process.env.SENDGRID_EMAIL,
   SMTP_EMAIL: process.env.SMTP_EMAIL,
   CLOUD_NAME: process.env.CLOUD_NAME,
   API_KEY: process.env.API_KEY,
   API_SECRET: process.env.API_SECRET,
+  PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
+  CLIENT_ID: process.env.CLIENT_ID,
+  CLIENT_SECRET: process.env.CLIENT_SECRET,
+  CALLBACK_URL: process.env.CALLBACK_URL,
+  SECRET: process.env.SECRET
 };
 
 const absentConfig = Object.entries(config)
